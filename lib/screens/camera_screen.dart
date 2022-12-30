@@ -1,12 +1,18 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:rider_app/Models/rider_model.dart';
 import 'package:rider_app/screens/map_screen.dart';
 import 'package:rider_app/screens/preview_screen.dart';
 import 'package:rider_app/services/camera_services.dart';
+import 'package:rider_app/utils/shared_prefrences.dart';
 
 class CameraScreen extends StatefulWidget {
+  final bool isRideStart;
+  final RideModel? rideModel;
+
   /// Default Constructor
-  const CameraScreen({Key? key}) : super(key: key);
+  const CameraScreen({Key? key, required this.isRideStart, this.rideModel})
+      : super(key: key);
 
   @override
   State<CameraScreen> createState() => _CameraScreenState();
@@ -55,13 +61,20 @@ class _CameraScreenState extends State<CameraScreen> {
     try {
       await controller.setFlashMode(FlashMode.off);
       XFile picture = await controller.takePicture();
-      picture.toString();
+      if (widget.isRideStart == false) {
+        Prefrences.saveFirstImage(path: picture.path);
+      }
+      if (widget.isRideStart == true) {
+        Prefrences.saveSecondImage(path: picture.path);
+      }
       // ignore: use_build_context_synchronously
       Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => PreviewPage(
             picture: picture,
+            isRideStart: widget.isRideStart,
+            rideModel: widget.rideModel,
           ),
         ),
       );
@@ -109,6 +122,23 @@ class _CameraScreenState extends State<CameraScreen> {
               )),
             ),
           ),
+          IconButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => PreviewPage(
+                      picture: XFile("fg"),
+                      isRideStart: widget.isRideStart,
+                      rideModel: widget.rideModel,
+                    ),
+                  ),
+                );
+              },
+              icon: const Icon(
+                Icons.arrow_back,
+                size: 20,
+              )),
           const SizedBox(
             height: 40,
           ),

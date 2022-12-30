@@ -27,8 +27,8 @@ class MainScreen extends StatelessWidget {
                 onTap: () {
                   Navigator.of(context)
                       .push(MaterialPageRoute(builder: (BuildContext context) {
-                    return PreviewPage(
-                      picture: XFile("fddw"),
+                    return const CameraScreen(
+                      isRideStart: false,
                     );
                   }));
                 },

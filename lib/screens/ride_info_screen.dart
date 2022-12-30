@@ -1,17 +1,29 @@
+import 'dart:convert';
+import 'dart:html';
+
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:rider_app/Models/rider_model.dart';
 import 'package:rider_app/screens/main_screen.dart';
 import 'package:rider_app/services/firebase/cloud_databse.dart';
+import 'package:rider_app/services/firebase/cloud_storage.dart';
+import 'package:rider_app/utils/shared_prefrences.dart';
 
-class RideInfoScreen extends StatelessWidget {
+class RideInfoScreen extends StatefulWidget {
   final RideModel rideModel;
+
   const RideInfoScreen({super.key, required this.rideModel});
 
+  @override
+  State<RideInfoScreen> createState() => _RideInfoScreenState();
+}
+
+class _RideInfoScreenState extends State<RideInfoScreen> {
   _uploadRide(BuildContext context) {
     final CloudDatabase cloudDatabase = CloudDatabase();
     try {
-      cloudDatabase.uploadProductData(rideModel.toMap());
+      cloudDatabase.uploadProductData(widget.rideModel.toMap());
       Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (context) => const MainScreen()),
           (Route<dynamic> route) => false);
@@ -38,6 +50,26 @@ class RideInfoScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  _uploadImages() async {
+    final firstImagePath = Prefrences.getFirstImage();
+    final secondImagePath = Prefrences.getSecondImage();
+    XFile firstFile = XFile(firstImagePath!);
+    CloudStorage().uploadFile(
+        filePath: "rides/${widget.rideModel.rideID}",
+        imageBytes: await firstFile.readAsBytes());
+    XFile secondFile = XFile(secondImagePath!);
+    CloudStorage().uploadFile(
+        filePath: "rides/${widget.rideModel.rideID}",
+        imageBytes: await secondFile.readAsBytes());
+    //TODO: add images to firebase
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _uploadImages();
   }
 
   @override
@@ -70,12 +102,12 @@ class RideInfoScreen extends StatelessWidget {
                       _buildColumnWidget(
                         label: "Start Time",
                         value: DateFormat('d MMM yy, hh:mm aaa ')
-                            .format(rideModel.startTime!),
+                            .format(widget.rideModel.startTime!),
                       ),
                       _buildColumnWidget(
                         label: "Finish Time",
                         value: DateFormat('d MMM yy, hh:mm aaa ')
-                            .format(rideModel.finishTime!),
+                            .format(widget.rideModel.finishTime!),
                       ),
                     ]),
               ),
@@ -86,13 +118,13 @@ class RideInfoScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     _buildColumnWidget(
-                        label: "Time", value: rideModel.time.toString()),
+                        label: "Time", value: widget.rideModel.time.toString()),
                     _buildColumnWidget(
                         label: "Distance",
-                        value: rideModel.distance.toString()),
+                        value: widget.rideModel.distance.toString()),
                     _buildColumnWidget(
                         label: "Avg Speed",
-                        value: rideModel.avgSpeed.toString()),
+                        value: widget.rideModel.avgSpeed.toString()),
                   ],
                 ),
               ),

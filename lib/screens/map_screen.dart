@@ -228,9 +228,13 @@ class _MapScreenState extends State<MapScreen> {
                                         avgSpeed: velocity.toStringAsFixed(2),
                                         startpoint: startPoint,
                                         finishPoint: finishPoint,
-                                        rideID: Random.secure().toString(),
+                                        rideID:
+                                            (Random.secure().nextInt(90000) +
+                                                    10000)
+                                                .toString(),
                                       );
-                                      return RideInfoScreen(
+                                      return CameraScreen(
+                                        isRideStart: true,
                                         rideModel: rideModel,
                                       );
                                     },
