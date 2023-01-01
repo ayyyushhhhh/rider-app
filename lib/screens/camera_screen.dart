@@ -1,7 +1,6 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:rider_app/Models/rider_model.dart';
-import 'package:rider_app/screens/map_screen.dart';
 import 'package:rider_app/screens/preview_screen.dart';
 import 'package:rider_app/services/camera_services.dart';
 import 'package:rider_app/utils/shared_prefrences.dart';

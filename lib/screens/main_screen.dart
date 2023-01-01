@@ -1,8 +1,6 @@
-import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:rider_app/screens/camera_screen.dart';
-import 'package:rider_app/screens/preview_screen.dart';
 
 class MainScreen extends StatelessWidget {
   const MainScreen({super.key});

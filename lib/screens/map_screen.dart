@@ -12,13 +12,12 @@ import 'package:rider_app/Models/rider_model.dart';
 // import 'package:vector_tile_renderer/vector_tile_renderer.dart';
 
 import 'package:rider_app/screens/camera_screen.dart';
-import 'package:rider_app/screens/ride_info_screen.dart';
+
 import 'package:rider_app/services/geolocator_services.dart';
-import 'package:rider_app/services/offline_maps_service.dart';
+
 import 'package:rider_app/services/stop_watch_data.dart';
 import 'package:rider_app/widgets/ride_data_widget.dart';
 import 'package:rider_app/widgets/slide_action.dart';
-import 'package:vector_map_tiles/vector_map_tiles.dart';
 
 import '../utils/app_constants.dart';
 
@@ -41,6 +40,7 @@ class _MapScreenState extends State<MapScreen> {
   final StopWatchData _stopWatchData = StopWatchData();
   Timer? _clockTimer;
   late String rideTime;
+  double rotation = 0;
 
   @override
   void initState() {
@@ -59,18 +59,6 @@ class _MapScreenState extends State<MapScreen> {
     mapController.dispose();
   }
 
-  // double _onAccelerate(UserAccelerometerEvent event) {
-  //   double newVelocity =
-  //       sqrt(event.x * event.x + event.y * event.y + event.z * event.z);
-
-  //   if ((newVelocity - velocity).abs() < 1) {
-  //     return 0.0;
-  //   }
-
-  //   velocity = newVelocity;
-  //   return velocity;
-  // }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -84,7 +72,24 @@ class _MapScreenState extends State<MapScreen> {
               if (!_polyLinesList.contains(latLng)) {
                 _polyLinesList.add(latLng);
                 if (_polyLinesList.length > 2) {
-                  mapController.move(latLng, 14);
+                  mapController.move(latLng, 18);
+                }
+                if (_polyLinesList.length == 2) {
+                  distance += (geoService.getDistance(
+                          lat1: _polyLinesList[0].latitude,
+                          lon1: _polyLinesList[0].longitude,
+                          lat2: _polyLinesList[1].latitude,
+                          lon2: _polyLinesList[1].longitude)) /
+                      1000;
+                } else if (_polyLinesList.length > 2) {
+                  distance += (geoService.getDistance(
+                          lat1: _polyLinesList[_polyLinesList.length - 2]
+                              .latitude,
+                          lon1: _polyLinesList[_polyLinesList.length - 2]
+                              .longitude,
+                          lat2: _polyLinesList.last.latitude,
+                          lon2: _polyLinesList.last.longitude)) /
+                      1000;
                 }
               }
 
@@ -98,6 +103,7 @@ class _MapScreenState extends State<MapScreen> {
                         maxZoom: 18,
                         zoom: 18,
                         center: latLng,
+                        rotation: position.heading,
                       ),
                       nonRotatedChildren: [
                         AttributionWidget.defaultWidget(
@@ -117,32 +123,34 @@ class _MapScreenState extends State<MapScreen> {
                         //   ),
                         // ),
                         TileLayer(
-                          urlTemplate:
-                              'https://api.mapbox.com/styles/v1/ayyyushhhhh/clc94ph3j005r14n6qft3xz7u/tiles/256/{z}/{x}/{y}@2x?access_token={access_token}',
+                          urlTemplate: AppConstants.mapURl(),
                           // ignore: prefer_const_literals_to_create_immutables
                           additionalOptions: {
                             "access_token": AppConstants.mapBoxAccessToken,
                           },
                           userAgentPackageName: 'com.example.rider_app',
                         ),
+
+                        PolylineLayer(
+                          polylines: [
+                            Polyline(
+                              points: _polyLinesList,
+                              borderStrokeWidth: 1,
+                            ),
+                          ],
+                        ),
                         MarkerLayer(
+                          rotate: true,
                           markers: [
                             Marker(
                               point: latLng,
                               width: 80,
                               height: 80,
+                              rotate: true,
                               builder: (context) => const FlutterLogo(),
                             ),
                           ],
                         ),
-                        PolylineLayer(
-                          polylines: [
-                            Polyline(
-                              points: _polyLinesList,
-                              borderStrokeWidth: 20,
-                            ),
-                          ],
-                        )
                       ],
                     ),
                   ),
@@ -183,8 +191,6 @@ class _MapScreenState extends State<MapScreen> {
                                 final timeData = snapshot.data as Duration;
                                 rideTime =
                                     _stopWatchData.getTime(duration: timeData);
-                                distance +=
-                                    velocity * (timeData.inSeconds / 3600);
 
                                 return RideDataWidget(
                                   time: rideTime,
@@ -208,38 +214,7 @@ class _MapScreenState extends State<MapScreen> {
                               text: "Slide to Finish",
                               sliderRotate: false,
                               onSubmit: () {
-                                List<double> startPoint = [
-                                  _polyLinesList.first.latitude,
-                                  _polyLinesList.first.longitude
-                                ];
-                                List<double> finishPoint = [
-                                  _polyLinesList.last.latitude,
-                                  _polyLinesList.last.longitude
-                                ];
-
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (BuildContext context) {
-                                      RideModel rideModel = RideModel(
-                                        startTime: startTime,
-                                        finishTime: DateTime.now(),
-                                        time: rideTime,
-                                        distance: distance.toStringAsFixed(3),
-                                        avgSpeed: velocity.toStringAsFixed(2),
-                                        startpoint: startPoint,
-                                        finishPoint: finishPoint,
-                                        rideID:
-                                            (Random.secure().nextInt(90000) +
-                                                    10000)
-                                                .toString(),
-                                      );
-                                      return CameraScreen(
-                                        isRideStart: true,
-                                        rideModel: rideModel,
-                                      );
-                                    },
-                                  ),
-                                );
+                                _saveData(context);
                               },
                             ),
                           ),
@@ -252,6 +227,38 @@ class _MapScreenState extends State<MapScreen> {
             }
             return const Center(child: CircularProgressIndicator());
           }),
+    );
+  }
+
+  void _saveData(BuildContext context) {
+    List<double> startPoint = [
+      _polyLinesList.first.latitude,
+      _polyLinesList.first.longitude
+    ];
+    List<double> finishPoint = [
+      _polyLinesList.last.latitude,
+      _polyLinesList.last.longitude
+    ];
+
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (BuildContext context) {
+          RideModel rideModel = RideModel(
+            startTime: startTime,
+            finishTime: DateTime.now(),
+            time: rideTime,
+            distance: distance.toStringAsFixed(3),
+            avgSpeed: velocity.toStringAsFixed(2),
+            startpoint: startPoint,
+            finishPoint: finishPoint,
+            rideID: (Random.secure().nextInt(90000) + 10000).toString(),
+          );
+          return CameraScreen(
+            isRideStart: true,
+            rideModel: rideModel,
+          );
+        },
+      ),
     );
   }
 }

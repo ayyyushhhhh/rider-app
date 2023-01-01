@@ -1,6 +1,3 @@
-import 'dart:convert';
-import 'dart:html';
-
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -27,7 +24,9 @@ class _RideInfoScreenState extends State<RideInfoScreen> {
       Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (context) => const MainScreen()),
           (Route<dynamic> route) => false);
-    } catch (e) {}
+    } catch (e) {
+      print(e);
+    }
   }
 
   _buildColumnWidget({required String label, required String value}) {
