@@ -7,18 +7,11 @@ import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import 'package:rider_app/Models/rider_model.dart';
-// import 'package:vector_map_tiles/vector_map_tiles.dart';
-// ignore: depend_on_referenced_packages
-// import 'package:vector_tile_renderer/vector_tile_renderer.dart';
-
 import 'package:rider_app/screens/camera_screen.dart';
-
 import 'package:rider_app/services/geolocator_services.dart';
-
 import 'package:rider_app/services/stop_watch_data.dart';
 import 'package:rider_app/widgets/ride_data_widget.dart';
 import 'package:rider_app/widgets/slide_action.dart';
-
 import '../utils/app_constants.dart';
 
 class MapScreen extends StatefulWidget {
@@ -147,7 +140,14 @@ class _MapScreenState extends State<MapScreen> {
                               width: 80,
                               height: 80,
                               rotate: true,
-                              builder: (context) => const FlutterLogo(),
+                              builder: (context) => SizedBox(
+                                width: 10,
+                                height: 10,
+                                child: Image.asset(
+                                  "assets/images/navigation.png",
+                                  fit: BoxFit.contain,
+                                ),
+                              ),
                             ),
                           ],
                         ),

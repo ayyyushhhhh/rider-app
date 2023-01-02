@@ -108,8 +108,8 @@ class PreviewPage extends StatelessWidget {
                           SimpleFontelicoProgressDialog dialog =
                               SimpleFontelicoProgressDialog(
                                   context: context, barrierDimisable: false);
-                          dialog.show(message: 'Loging In...');
-                          await _uploadImage(rideModel);
+
+                          _uploadImage(rideModel);
                           dialog.hide();
 
                           // ignore: use_build_context_synchronously

@@ -24,7 +24,7 @@ class _RideInfoScreenState extends State<RideInfoScreen> {
         cloudDatabase.uploadRideData(widget.rideModel.toMap());
         Prefrences.deleteRide(rideID: widget.rideModel.rideID!);
       } catch (e) {
-        print(e);
+        rethrow;
       }
 
       final allKeys = Prefrences.getAllKeys();
@@ -39,7 +39,7 @@ class _RideInfoScreenState extends State<RideInfoScreen> {
           MaterialPageRoute(builder: (context) => const MainScreen()),
           (Route<dynamic> route) => false);
     } catch (e) {
-      print(e);
+      rethrow;
     }
   }
 
