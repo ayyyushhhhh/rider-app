@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 
 class RideModel {
-  String rideID;
+  String? rideID;
   List<String>? imagePaths;
   DateTime? startTime;
   DateTime? finishTime;
@@ -15,7 +15,7 @@ class RideModel {
   List<double>? finishPoint;
 
   RideModel({
-    required this.rideID,
+    this.rideID,
     this.imagePaths,
     this.startTime,
     this.finishTime,

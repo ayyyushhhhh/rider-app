@@ -1,11 +1,11 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:flutter/material.dart' hide Theme;
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:provider/provider.dart';
 import 'package:rider_app/Models/rider_model.dart';
 // import 'package:vector_map_tiles/vector_map_tiles.dart';
 // ignore: depend_on_referenced_packages
@@ -243,16 +243,25 @@ class _MapScreenState extends State<MapScreen> {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (BuildContext context) {
-          RideModel rideModel = RideModel(
-            startTime: startTime,
-            finishTime: DateTime.now(),
-            time: rideTime,
-            distance: distance.toStringAsFixed(3),
-            avgSpeed: velocity.toStringAsFixed(2),
-            startpoint: startPoint,
-            finishPoint: finishPoint,
-            rideID: (Random.secure().nextInt(90000) + 10000).toString(),
-          );
+          final rideModel = Provider.of<RideModel>(context, listen: false);
+          rideModel.startTime = startTime;
+          rideModel.finishTime = DateTime.now();
+          rideModel.avgSpeed = velocity.toStringAsFixed(2);
+          rideModel.time = rideTime;
+          rideModel.distance = distance.toStringAsFixed(3);
+          rideModel.finishPoint = finishPoint;
+          rideModel.startpoint = startPoint;
+          rideModel.finishPoint = finishPoint;
+          // rideModel = RideModel(
+          //   startTime: startTime,
+          //   finishTime: DateTime.now(),
+          //   time: rideTime,
+          //   distance: ,
+          //   avgSpeed: velocity.toStringAsFixed(2),
+          //   startpoint: startPoint,
+          //   finishPoint: finishPoint,
+
+          // );
           return CameraScreen(
             isRideStart: true,
             rideModel: rideModel,

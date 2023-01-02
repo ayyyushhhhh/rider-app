@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:rider_app/Models/rider_model.dart';
 import 'package:rider_app/screens/preview_screen.dart';
 import 'package:rider_app/services/camera_services.dart';
-import 'package:rider_app/utils/shared_prefrences.dart';
 
 class CameraScreen extends StatefulWidget {
   final bool isRideStart;
@@ -60,19 +59,13 @@ class _CameraScreenState extends State<CameraScreen> {
     try {
       await controller.setFlashMode(FlashMode.off);
       XFile picture = await controller.takePicture();
-      if (widget.isRideStart == false) {
-        Prefrences.saveFirstImage(path: picture.path);
-      }
-      if (widget.isRideStart == true) {
-        Prefrences.saveSecondImage(path: picture.path);
-      }
       // ignore: use_build_context_synchronously
       Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => PreviewPage(
             picture: picture,
-            isRideStart: widget.isRideStart,
+            hasRideStart: widget.isRideStart,
             rideModel: widget.rideModel,
           ),
         ),
@@ -128,7 +121,7 @@ class _CameraScreenState extends State<CameraScreen> {
                   MaterialPageRoute(
                     builder: (context) => PreviewPage(
                       picture: XFile("fg"),
-                      isRideStart: widget.isRideStart,
+                      hasRideStart: widget.isRideStart,
                       rideModel: widget.rideModel,
                     ),
                   ),

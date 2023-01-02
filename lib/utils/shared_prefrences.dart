@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:shared_preferences/shared_preferences.dart';
 
 // ignore: avoid_classes_with_only_static_members
@@ -14,28 +13,19 @@ class Prefrences {
     preferences!.setString(ride["rideID"], jsonEncode(ride));
   }
 
-  static void deleteRide({required Map ride}) {
-    preferences!.remove(ride["rideID"]);
+  static void deleteRide({required String rideID}) {
+    preferences!.remove(rideID);
   }
 
-  static void saveFirstImage({required String path}) {
-    preferences!.setString("first", path);
+  static Map<String, dynamic> getRide({required String rideID}) {
+    String? ridePref = preferences!.getString('user');
+
+    Map<String, dynamic> rideMap =
+        jsonDecode(ridePref.toString()) as Map<String, dynamic>;
+    return rideMap;
   }
 
-  static void saveSecondImage({required String path}) {
-    preferences!.setString("second", path);
-  }
-
-  static String? getFirstImage() {
-    return preferences!.getString("first");
-  }
-
-  static String? getSecondImage() {
-    return preferences!.getString("second");
-  }
-
-  static void deleteImages() {
-    preferences!.remove("first");
-    preferences!.remove("secondcl");
+  static Set<String> getAllKeys() {
+    return preferences!.getKeys();
   }
 }

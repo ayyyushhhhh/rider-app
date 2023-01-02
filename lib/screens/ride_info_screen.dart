@@ -1,10 +1,9 @@
-import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:rider_app/Models/rider_model.dart';
 import 'package:rider_app/screens/main_screen.dart';
 import 'package:rider_app/services/firebase/cloud_databse.dart';
-import 'package:rider_app/services/firebase/cloud_storage.dart';
+
 import 'package:rider_app/utils/shared_prefrences.dart';
 
 class RideInfoScreen extends StatefulWidget {
@@ -20,7 +19,22 @@ class _RideInfoScreenState extends State<RideInfoScreen> {
   _uploadRide(BuildContext context) {
     final CloudDatabase cloudDatabase = CloudDatabase();
     try {
-      cloudDatabase.uploadProductData(widget.rideModel.toMap());
+      try {
+        Prefrences.saveRide(ride: widget.rideModel.toMap());
+        cloudDatabase.uploadRideData(widget.rideModel.toMap());
+        Prefrences.deleteRide(rideID: widget.rideModel.rideID!);
+      } catch (e) {
+        print(e);
+      }
+
+      final allKeys = Prefrences.getAllKeys();
+      if (allKeys.isNotEmpty) {
+        for (int i = 0; i < allKeys.length; i++) {
+          final ride = Prefrences.getRide(rideID: allKeys.elementAt(i));
+          cloudDatabase.uploadRideData(ride);
+          Prefrences.deleteRide(rideID: ride["rideID"]);
+        }
+      }
       Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (context) => const MainScreen()),
           (Route<dynamic> route) => false);
@@ -49,26 +63,6 @@ class _RideInfoScreenState extends State<RideInfoScreen> {
         ],
       ),
     );
-  }
-
-  _uploadImages() async {
-    final firstImagePath = Prefrences.getFirstImage();
-    final secondImagePath = Prefrences.getSecondImage();
-    XFile firstFile = XFile(firstImagePath!);
-    CloudStorage().uploadFile(
-        filePath: "rides/${widget.rideModel.rideID}",
-        imageBytes: await firstFile.readAsBytes());
-    XFile secondFile = XFile(secondImagePath!);
-    CloudStorage().uploadFile(
-        filePath: "rides/${widget.rideModel.rideID}",
-        imageBytes: await secondFile.readAsBytes());
-    //TODO: add images to firebase
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _uploadImages();
   }
 
   @override
