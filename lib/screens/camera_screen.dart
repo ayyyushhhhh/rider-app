@@ -23,7 +23,11 @@ class _CameraScreenState extends State<CameraScreen> {
   void initState() {
     super.initState();
     List<CameraDescription> cameras = CameraService.camerasList();
-    controller = CameraController(cameras[0], ResolutionPreset.max);
+    controller = CameraController(
+      cameras[0],
+      ResolutionPreset.max,
+      imageFormatGroup: ImageFormatGroup.yuv420,
+    );
     controller.initialize().then((_) {
       if (!mounted) {
         return;
@@ -57,8 +61,8 @@ class _CameraScreenState extends State<CameraScreen> {
       return null;
     }
     try {
-      await controller.setFlashMode(FlashMode.off);
       XFile picture = await controller.takePicture();
+
       // ignore: use_build_context_synchronously
       Navigator.push(
         context,
@@ -93,7 +97,10 @@ class _CameraScreenState extends State<CameraScreen> {
             child: SizedBox(
                 height: 400,
                 width: double.infinity,
-                child: CameraPreview(controller)),
+                child: CameraPreview(
+                  controller,
+                  key: UniqueKey(),
+                )),
           ),
           InkWell(
             onTap: () {
@@ -128,7 +135,7 @@ class _CameraScreenState extends State<CameraScreen> {
                 );
               },
               icon: const Icon(
-                Icons.arrow_back,
+                Icons.arrow_forward,
                 size: 20,
               )),
           const SizedBox(

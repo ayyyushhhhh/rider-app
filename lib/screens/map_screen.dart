@@ -140,13 +140,11 @@ class _MapScreenState extends State<MapScreen> {
                               width: 80,
                               height: 80,
                               rotate: true,
-                              builder: (context) => SizedBox(
-                                width: 10,
+                              builder: (context) => Image.asset(
+                                "assets/images/navigation.png",
                                 height: 10,
-                                child: Image.asset(
-                                  "assets/images/navigation.png",
-                                  fit: BoxFit.contain,
-                                ),
+                                width: 10,
+                                fit: BoxFit.cover,
                               ),
                             ),
                           ],
